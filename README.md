@@ -8,23 +8,61 @@
 
 ## 実装されているAI
 
-### 1. `myai()` - 基本AI
-最も多くの石を取れる位置を選ぶシンプルなAI。
+### 基本AI群
+
+#### 1. `myai_greedy_simple()` - 基本AI
+最も多くの石を取れる位置を選ぶシンプルなAIである。
 - **戦略**: 手を打った後の自分の石の総数が最大になる位置を選択
 - **特徴**: 理解しやすく、実装が簡単
 
-### 2. `myai_greedy()` - 貪欲AI
-最も多くの石をひっくり返せる手を選ぶAI。
+#### 2. `myai_greedy_flip()` - 貪欲AI
+最も多くの石をひっくり返せる手を選ぶAIである。
 - **戦略**: その手でひっくり返せる石数が最大の位置を選択
 - **特徴**: 即座の利益を最大化する短期思考
 
-### 3. `myai_positional()` - 位置評価AI（推奨）
-角や辺などの重要な位置を考慮した戦略的AI。
+#### 3. `myai_positional()` - 位置評価AI
+角や辺などの重要な位置を考慮した戦略的AIである。
 - **戦略**: 位置の価値とひっくり返る石数の両方を評価
-- **特徴**: 
+- **特徴**:
   - 6x6・8x8両対応の評価表を使用
   - 角（120点）、辺（20点）、危険地帯（-20〜-40点）などの定石を反映
   - 総合スコア = 位置価値 + ひっくり返る石数 × 10
+
+### 高度AI群（ミニマックス法）
+
+#### 4. `myai_minimax_shallow()` - 浅い探索AI
+深さ3のミニマックス法を使用した探索型AIである。
+- **戦略**: 3手先まで読んで最適手を選択
+- **特徴**: 計算が軽く、実用的な強さ
+- **技術**: アルファベータ剪定で高速化
+
+#### 5. `myai_minimax_deep()` - 深い探索AI
+深さ5のミニマックス法を使用した強力なAIである。
+- **戦略**: 5手先まで読んで最適手を選択
+- **特徴**: より強いが計算時間がかかる
+- **技術**: アルファベータ剪定で高速化
+
+#### 6. `myai_adaptive_depth()` - 適応的探索AI
+ゲームの進行状況に応じて探索深度を調整するAIである。
+- **戦略**:
+  - 序盤（〜30%）: 深さ3（選択肢が多いため浅く）
+  - 中盤（30-70%）: 深さ4（バランス重視）
+  - 終盤（70%〜）: 深さ5-6（重要な局面を深く読む）
+- **特徴**: 計算効率と強さのバランスが最適
+
+#### 7. `myai_strategic()` - 戦略的AI（最強）
+ゲーム局面に応じて異なる戦略を使い分ける最高水準のAIである。
+- **戦略**:
+  - 序盤（〜20%）: 位置評価重視（`myai_positional`）
+  - 中盤（20-80%）: 適応的探索（`myai_adaptive_depth`）
+  - 終盤（80%〜）: 深い探索（`myai_minimax_deep`）
+- **特徴**: 各局面で最適な戦略を自動選択
+
+### エイリアス・デフォルト関数
+
+- `myai`: `myai_positional`のエイリアス（サイト互換性用）
+- `myai_default`: `myai_positional`のエイリアス
+- `myai_best`: `myai_strategic`のエイリアス（最強AI）
 
 ## 使用方法
 
@@ -42,34 +80,74 @@
 # 3. 必要なモジュールのインポート
 from sakura import othello
 from sakura.othello import *
-from othello_ai import myai, myai_greedy, myai_positional
+from othello_ai import *  # すべてのAI関数をインポート
 ```
 
 ### 基本的な使い方
 ```python
 # デフォルトAI（位置評価AI）を使用
 othello.play(myai)
+
+# 最強AI（戦略的AI）を使用
+othello.play(myai_best)
 ```
 
 ### 特定のAIを指定
 ```python
-# 貪欲AIを使用
-othello.play(myai_greedy)
+# 基本AI群
+othello.play(myai_greedy_simple)   # 基本AI
+othello.play(myai_greedy_flip)     # 貪欲AI
+othello.play(myai_positional)      # 位置評価AI
 
-# 位置評価AIを使用
-othello.play(myai_positional)
+# 高度AI群（ミニマックス法）
+othello.play(myai_minimax_shallow)  # 浅い探索（深さ3）
+othello.play(myai_minimax_deep)     # 深い探索（深さ5）
+othello.play(myai_adaptive_depth)   # 適応的探索
+othello.play(myai_strategic)        # 戦略的AI（最強）
 ```
 
-### AIの性能テスト
+### AIの強さ比較
 ```python
-# AI同士を対戦させる
-othello.run(myai_greedy, myai_positional)
+# 弱いAI vs 強いAI
+othello.run(myai_greedy_simple, myai_strategic)
+
+# 中級AI vs 上級AI
+othello.run(myai_positional, myai_minimax_deep)
+
+# 異なる探索深度の比較
+othello.run(myai_minimax_shallow, myai_minimax_deep)
 ```
 
 **注意事項:**
 - このプログラムはGoogle Colab上でのみ動作する
 - 人間は先手（黒）、AIは後手（白）として対戦する
 - 黒を置きたい場所をクリックして操作する
+
+## 実装技術の解説
+
+### ミニマックス法とは
+**ミニマックス法**は、2人ゲームにおいて最適な手を見つけるための探索アルゴリズムである。
+
+**基本原理:**
+- 自分のターン: 評価値を**最大化**する手を選ぶ
+- 相手のターン: 評価値を**最小化**する手を選ぶ（相手は自分にとって最悪の手を打つと仮定）
+- 指定した深さまで再帰的に探索し、最終的な評価値を逆算
+
+### アルファベータ剪定
+**アルファベータ剪定**は、ミニマックス法の計算量を大幅に削減する最適化技術である。
+
+**効果:**
+- 探索する必要のない枝を早期に切り捨て
+- 同じ結果を得ながら計算時間を大幅短縮
+- 深い探索が実用的な時間で可能
+
+### 適応的戦略
+**ゲーム局面に応じた戦略切り替え**により、各段階で最適なアプローチを採用している。
+
+**局面別戦略:**
+- **序盤**: 位置価値重視（角や辺の確保）
+- **中盤**: バランス型探索（位置と読みの両立）
+- **終盤**: 深い探索（正確な読み切り）
 
 ## AI関数の仕様
 
