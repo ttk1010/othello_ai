@@ -165,9 +165,63 @@ othello.run(myai_minimax_shallow, myai_minimax_deep)
 
 ## ファイル構成
 
-- `myai.py`: 各種AI実装
-- `__init__.py`: パッケージ初期化ファイル（AI関数のエクスポート）
+- `myai.py`: 各種AI実装（メインファイル）
+- `othello_utils.py`: オセロゲームの基本関数群（依存関数の実装）
+- `__init__.py`: パッケージ初期化ファイル（AI関数のエクスポートと依存関係処理）
+- `test_demo.py`: ローカル環境でのテスト・デモ用スクリプト
 - `README.md`: このファイル
+
+## 依存関係とアーキテクチャ
+
+### 保守性重視の設計方針
+
+このリポジトリは以下の方針で設計されている：
+
+1. **依存関係の明確化**: sakura.othelloへの依存を明示
+2. **フォールバック機能**: sakuraが利用できない場合の代替実装を提供
+3. **独立性の確保**: 単体でも動作可能
+4. **モジュール分離**: AI実装と基本関数を分離
+
+### 動作モード
+
+#### モード1: Google Colab（推奨）
+```python
+# sakura.othelloが利用できる場合
+from sakura.othello import can_place_x_y, move_stone, copy
+```
+
+#### モード2: スタンドアロン
+```python
+# othello_utils.pyを使用する場合
+from othello_utils import can_place_x_y, move_stone, copy
+```
+
+### インポート処理の仕組み
+
+`myai.py`と`__init__.py`では以下の順序で依存関数を探す：
+
+1. `sakura.othello`モジュール（Google Colab環境）
+2. ローカルの`othello_utils.py`（スタンドアロン環境）
+3. エラー処理とフォールバック
+
+## ローカル環境でのテスト
+
+Google Colab以外の環境でも動作確認できるように、テスト用スクリプトを提供している：
+
+```python
+# ローカル環境でのテスト実行
+python test_demo.py
+```
+
+**テスト内容:**
+- 各AI関数の動作確認
+- AI同士の対戦デモ
+- 盤面表示とゲーム進行の可視化
+
+**利点:**
+- デバッグが容易
+- 開発環境での動作確認
+- CI/CDパイプラインでの自動テスト
 
 ## 評価表について
 

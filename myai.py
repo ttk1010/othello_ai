@@ -1,3 +1,23 @@
+"""
+オセロAI関数集
+
+このモジュールには複数種類のオセロAI実装が含まれています。
+依存関係: othello_utils.py または sakura.othello モジュール
+"""
+
+# 依存関数のインポート
+try:
+    # sakura.othelloがある場合（Google Colab環境）
+    from sakura.othello import can_place_x_y, move_stone, copy
+except ImportError:
+    try:
+        # ローカルのothello_utilsがある場合
+        from .othello_utils import can_place_x_y, move_stone, copy
+    except ImportError:
+        # 同じディレクトリのothello_utilsがある場合
+        from othello_utils import can_place_x_y, move_stone, copy
+
+
 def myai_greedy_simple(board, color):
     """
     最も多くの石を取れる位置を選ぶオセロAI
