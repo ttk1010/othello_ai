@@ -7,6 +7,7 @@
 - myai_greedy_simple: 基本AI（石数最大化）
 - myai_greedy_flip: 貪欲AI（ひっくり返し数最大化）
 - myai_positional: 位置評価AI
+- myai_positional_improved: 改良版位置評価AI（局面別評価表+確定石考慮）
 
 高度AI群（ミニマックス法）:
 - myai_minimax_shallow: 浅い探索AI（深さ3）
@@ -16,12 +17,13 @@
 
 エイリアス:
 - myai: myai_positional（サイト互換性用）
-- myai_default: myai_positional
 
 内部関数:
 - evaluate_board: ボード評価関数
 - get_valid_moves: 有効な手を取得
 - minimax: ミニマックス探索関数
+- count_stable_stones: 確定石カウント関数
+- get_eval_table: 局面別評価表取得関数
 """
 
 from .myai import (
@@ -29,6 +31,7 @@ from .myai import (
     myai_greedy_simple,
     myai_greedy_flip,
     myai_positional,
+    myai_positional_improved,
 
     # 高度AI群
     myai_minimax_shallow,
@@ -43,10 +46,12 @@ from .myai import (
     # 内部関数（上級者用）
     evaluate_board,
     get_valid_moves,
-    minimax
+    minimax,
+    count_stable_stones,
+    get_eval_table,
 )
 
-__version__ = "2.2.0"
+__version__ = "2.3.0"
 __author__ = "ttk1010"
 
 # デフォルトのAI関数をパッケージレベルで公開
@@ -55,6 +60,7 @@ __all__ = [
     'myai_greedy_simple',
     'myai_greedy_flip',
     'myai_positional',
+    'myai_positional_improved',
 
     # 高度AI群
     'myai_minimax_shallow',
@@ -69,5 +75,7 @@ __all__ = [
     # 内部関数
     'evaluate_board',
     'get_valid_moves',
-    'minimax'
+    'minimax',
+    'count_stable_stones',
+    'get_eval_table',
 ]

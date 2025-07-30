@@ -20,31 +20,144 @@ except ImportError:
 
 # 評価表
 EVAL_TABLES = {
-    "6x6": [
-            [100, -20,  10,  10, -20, 100],
-            [-20, -30,   2,   2, -30, -20],
-            [ 10,   2,   5,   5,   2,  10],
-            [ 10,   2,   5,   5,   2,  10],
-            [-20, -30,   2,   2, -30, -20],
-            [100, -20,  10,  10, -20, 100]
+    "6x6": {
+        "beginning": [
+            # 序盤：隅を最重要視、隅隣接を強く避ける、石を多く取らない戦略
+            [-1, -45, -11, -11, -45, -1],
+            [-45, -25, -15, -15, -25, -45],
+            [-11, -15, -3, -3, -15, -11],
+            [-11, -15, -3, -3, -15, -11],
+            [-45, -25, -15, -15, -25, -45],
+            [-1, -45, -11, -11, -45, -1]
         ],
-    "8x8": [
-            [120, -20,  20,   5,   5,  20, -20, 120],
-            [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
-            [ 20,  -5,  15,   3,   3,  15,  -5,  20],
-            [  5,  -5,   3,   3,   3,   3,  -5,   5],
-            [  5,  -5,   3,   3,   3,   3,  -5,   5],
-            [ 20,  -5,  15,   3,   3,  15,  -5,  20],
-            [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
-            [120, -20,  20,   5,   5,  20, -20, 120]
-        ]
+        "midgame": [
+            # 中盤：隅の重要性を保ちつつ、辺の価値を上げる
+            [-1, -30, -8, -8, -30, -1],
+            [-30, -20, -10, -10, -20, -30],
+            [-8, -10, -5, -5, -10, -8],
+            [-8, -10, -5, -5, -10, -8],
+            [-30, -20, -10, -10, -20, -30],
+            [-1, -30, -8, -8, -30, -1]
+        ],
+        "endgame": [
+            # 終盤：石数重視、隅の重要性は相対的に下がる
+            [-1, -15, -5, -5, -15, -1],
+            [-15, -10, -7, -7, -10, -15],
+            [-5, -7, -8, -8, -7, -5],
+            [-5, -7, -8, -8, -7, -5],
+            [-15, -10, -7, -7, -10, -15],
+            [-1, -15, -5, -5, -15, -1]
+        ],
+    },
+    "8x8": {
+        "beginning": [
+            # 序盤：隅の価値を最大化、隅隣接を避ける
+            [-1, -50, -15, -8, -8, -15, -50, -1],
+            [-50, -35, -20, -12, -12, -20, -35, -50],
+            [-15, -20, -5, -3, -3, -5, -20, -15],
+            [-8, -12, -3, -2, -2, -3, -12, -8],
+            [-8, -12, -3, -2, -2, -3, -12, -8],
+            [-15, -20, -5, -3, -3, -5, -20, -15],
+            [-50, -35, -20, -12, -12, -20, -35, -50],
+            [-1, -50, -15, -8, -8, -15, -50, -1]
+        ],
+        "midgame": [
+            # 中盤：バランス調整、辺の価値向上
+            [-1, -35, -10, -6, -6, -10, -35, -1],
+            [-35, -25, -15, -8, -8, -15, -25, -35],
+            [-10, -15, -4, -2, -2, -4, -15, -10],
+            [-6, -8, -2, -1, -1, -2, -8, -6],
+            [-6, -8, -2, -1, -1, -2, -8, -6],
+            [-10, -15, -4, -2, -2, -4, -15, -10],
+            [-35, -25, -15, -8, -8, -15, -25, -35],
+            [-1, -35, -10, -6, -6, -10, -35, -1]
+        ],
+        "endgame": [
+            # 終盤：石数重視、位置による差を小さく
+            [-1, -20, -7, -4, -4, -7, -20, -1],
+            [-20, -15, -10, -6, -6, -10, -15, -20],
+            [-7, -10, -6, -4, -4, -6, -10, -7],
+            [-4, -6, -4, -3, -3, -4, -6, -4],
+            [-4, -6, -4, -3, -3, -4, -6, -4],
+            [-7, -10, -6, -4, -4, -6, -10, -7],
+            [-20, -15, -10, -6, -6, -10, -15, -20],
+            [-1, -20, -7, -4, -4, -7, -20, -1]
+        ],
     }
+}
 
 
-def get_eval_table(board):
-    """ボードサイズに応じた評価表を取得"""
+def get_eval_table(board, game_phase="beginning"):
+    """
+    ボードサイズと局面に応じた評価表を取得
+
+    Args:
+        board: 2次元配列のオセロボード
+        game_phase: 'beginning', 'midgame', 'endgame'
+
+    Returns:
+        評価表（2次元配列）
+    """
     size = f"{len(board)}x{len(board[0])}"
-    return EVAL_TABLES.get(size, EVAL_TABLES["6x6"])  # デフォルトは6x6
+
+    if size in EVAL_TABLES and game_phase in EVAL_TABLES[size]:
+        return EVAL_TABLES[size][game_phase]
+    else:
+        # デフォルト値
+        return EVAL_TABLES["6x6"]["beginning"]
+
+
+def count_stable_stones(board, color):
+    """
+    確定石（二度とひっくり返されない石）の数を数える
+
+    Args:
+        board: 2次元配列のオセロボード
+        color: 石の色
+
+    Returns:
+        確定石の数
+    """
+    stable_count = 0
+    rows, cols = len(board), len(board[0])
+
+    # 隅から始まる確定石をチェック
+    corners = [(0, 0), (0, cols-1), (rows-1, 0), (rows-1, cols-1)]
+
+    for corner_y, corner_x in corners:
+        if board[corner_y][corner_x] == color:
+            stable_count += 1
+
+            # 隅から連続する同色の石を確定石として扱う（簡易版）
+            # 実際の確定石判定はより複雑だが、ここでは簡略化
+
+            # 縦方向の確定石
+            for y in range(1, rows):
+                if corner_y == 0:  # 上の隅から下へ
+                    if board[y][corner_x] == color:
+                        stable_count += 1
+                    else:
+                        break
+                else:  # 下の隅から上へ
+                    if board[rows-1-y][corner_x] == color:
+                        stable_count += 1
+                    else:
+                        break
+
+            # 横方向の確定石
+            for x in range(1, cols):
+                if corner_x == 0:  # 左の隅から右へ
+                    if board[corner_y][x] == color:
+                        stable_count += 1
+                    else:
+                        break
+                else:  # 右の隅から左へ
+                    if board[corner_y][cols-1-x] == color:
+                        stable_count += 1
+                    else:
+                        break
+
+    return stable_count
 
 
 def myai_greedy_simple(board, color):
@@ -122,7 +235,7 @@ def myai_positional(board, color):
     Returns:
         (column, row): 評価値が最も高い位置
     """
-    eval_table = EVAL_TABLES["6x6"] if len(board) == 6 else EVAL_TABLES["8x8"]
+    eval_table = get_eval_table(board)
 
     best_score = float('-inf')
     best_move = None
@@ -151,6 +264,77 @@ def myai_positional(board, color):
 
 
 myai = myai_positional
+
+
+def myai_positional_improved(board, color):
+    """
+    改良版位置評価AI：段階別評価表 + 確定石考慮
+    サイトの知見を基に実装：
+    - 負の評価値で「石を多く取らない」戦略
+    - 序盤・中盤・終盤で評価表を切り替え
+    - 確定石の数も考慮
+
+    Args:
+        board: 2次元配列のオセロボード
+        color: 自分の色 (BLACK=1, WHITE=2)
+
+    Returns:
+        (column, row): 評価値が最も高い位置
+    """
+    # ゲーム進行度を判定
+    total_stones = sum(row.count(1) + row.count(2) for row in board)
+    total_cells = len(board) * len(board[0])
+    progress = total_stones / total_cells
+
+    # 局面に応じた評価表を取得
+    if progress < 0.25:
+        eval_table = get_eval_table(board, "beginning")
+        flip_weight = 5   # 序盤：石を取りすぎない
+    elif progress < 0.75:
+        eval_table = get_eval_table(board, "midgame")
+        flip_weight = 8   # 中盤：バランス
+    else:
+        eval_table = get_eval_table(board, "endgame")
+        flip_weight = 15  # 終盤：石数重視
+
+    best_score = float('-inf')
+    best_move = None
+
+    for y in range(len(board)):
+        for x in range(len(board[0])):
+            if can_place_x_y(board, color, x, y):
+                # 手を試してみる
+                test_board = copy(board)
+                original_count = sum(row.count(color) for row in test_board)
+                move_stone(test_board, color, x, y)
+                new_count = sum(row.count(color) for row in test_board)
+                flip_count = new_count - original_count - 1
+
+                # 位置評価（負の値なので、石が少ないほど良い）
+                position_value = eval_table[y][x]
+
+                # 確定石の評価
+                my_stable = count_stable_stones(test_board, color)
+                opponent_stable = count_stable_stones(test_board, 3 - color)
+                stable_diff = my_stable - opponent_stable
+
+                # 総合評価（サイトの考え方に基づく）
+                # 1. 位置評価（負の値）
+                # 2. ひっくり返る石数（序盤は少ない方が良い）
+                # 3. 確定石の差（多い方が良い）
+                if progress < 0.5:
+                    # 序盤～中盤：石を取りすぎない戦略
+                    total_score = position_value - flip_count * flip_weight + stable_diff * 50
+                else:
+                    # 終盤：石数も重要
+                    stone_diff = sum(row.count(color) for row in test_board) - sum(row.count(3-color) for row in test_board)
+                    total_score = position_value + flip_count * flip_weight + stable_diff * 30 + stone_diff * 10
+
+                if total_score > best_score:
+                    best_score = total_score
+                    best_move = (x, y)
+
+    return best_move if best_move else (0, 0)
 
 
 def evaluate_board(board, color):
