@@ -36,7 +36,6 @@ from .myai import (
     myai_greedy_simple,
     myai_greedy_flip,
     myai_positional,
-    myai_default,
 
     # 高度AI群
     myai_minimax_shallow,
@@ -54,7 +53,7 @@ from .myai import (
     minimax
 )
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 __author__ = "ttk1010"
 
 # デフォルトのAI関数をパッケージレベルで公開
@@ -63,7 +62,6 @@ __all__ = [
     'myai_greedy_simple',
     'myai_greedy_flip',
     'myai_positional',
-    'myai_default',
 
     # 高度AI群
     'myai_minimax_shallow',
