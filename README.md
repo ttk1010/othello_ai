@@ -286,3 +286,4 @@ EVAL_TABLE_BEGINNING = [
 
 - [プログラミング入門は、オセロAIで仕上げ！](https://note.com/kkuramitsu/n/n15682979bfaa)
 - [演習用コード（GitHub）](https://github.com/kkuramitsu/sakura.git)
+- [オセロの戦略・定石 - うぐいすのオセロ](https://uguisu.skr.jp/othello/5-1.html)
