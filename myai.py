@@ -5,6 +5,19 @@
 依存関係: othello_utils.py または sakura.othello モジュール
 """
 
+# 依存関数のインポート
+try:
+    # sakura.othelloがある場合（Google Colab環境）
+    from sakura.othello import can_place_x_y, move_stone, copy
+except ImportError:
+    try:
+        # ローカルのothello_utilsがある場合
+        from .othello_utils import can_place_x_y, move_stone, copy
+    except ImportError:
+        # 同じディレクトリのothello_utilsがある場合
+        from othello_utils import can_place_x_y, move_stone, copy
+
+
 # 評価表
 EVAL_TABLES = {
     "6x6": [

@@ -17,19 +17,12 @@
 エイリアス:
 - myai: myai_positional（サイト互換性用）
 - myai_default: myai_positional
-ユーティリティ:
-- othello_utils: オセロゲームの基本関数群
-"""
 
-# 依存関数の処理
-try:
-    # sakura.othelloがある場合は何もしない
-    from sakura.othello import can_place_x_y, move_stone, copy
-    _SAKURA_AVAILABLE = True
-except ImportError:
-    # othello_utilsを使用
-    from . import othello_utils
-    _SAKURA_AVAILABLE = False
+内部関数:
+- evaluate_board: ボード評価関数
+- get_valid_moves: 有効な手を取得
+- minimax: ミニマックス探索関数
+"""
 
 from .myai import (
     # 基本AI群
@@ -78,7 +71,3 @@ __all__ = [
     'get_valid_moves',
     'minimax'
 ]
-
-# sakuraが利用できない場合はothello_utilsも公開
-if not _SAKURA_AVAILABLE:
-    __all__.append('othello_utils')
