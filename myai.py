@@ -18,6 +18,34 @@ except ImportError:
         from othello_utils import can_place_x_y, move_stone, copy
 
 
+EVAL_TABLES = {
+    "6x6": [
+            [100, -20,  10,  10, -20, 100],
+            [-20, -30,   2,   2, -30, -20],
+            [ 10,   2,   5,   5,   2,  10],
+            [ 10,   2,   5,   5,   2,  10],
+            [-20, -30,   2,   2, -30, -20],
+            [100, -20,  10,  10, -20, 100]
+        ],
+    "8x8": [
+            [120, -20,  20,   5,   5,  20, -20, 120],
+            [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
+            [ 20,  -5,  15,   3,   3,  15,  -5,  20],
+            [  5,  -5,   3,   3,   3,   3,  -5,   5],
+            [  5,  -5,   3,   3,   3,   3,  -5,   5],
+            [ 20,  -5,  15,   3,   3,  15,  -5,  20],
+            [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
+            [120, -20,  20,   5,   5,  20, -20, 120]
+        ]
+    }
+
+
+def get_eval_table(board):
+    """ボードサイズに応じた評価表を取得"""
+    size = f"{len(board)}x{len(board[0])}"
+    return EVAL_TABLES.get(size, EVAL_TABLES["6x6"])  # デフォルトは6x6
+
+
 def myai_greedy_simple(board, color):
     """
     最も多くの石を取れる位置を選ぶオセロAI
@@ -93,32 +121,7 @@ def myai_positional(board, color):
     Returns:
         (column, row): 評価値が最も高い位置
     """
-    # 6x6ボード用の評価表
-    if len(board) == 6:
-        evaluation_table = [
-            [120, -20,  20,   5,   5,  20, -20, 120],
-            [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
-            [ 20,  -5,  15,   3,   3,  15,  -5,  20],
-            [  5,  -5,   3,   3,   3,   3,  -5,   5],
-            [  5,  -5,   3,   3,   3,   3,  -5,   5],
-            [ 20,  -5,  15,   3,   3,  15,  -5,  20],
-            [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
-            [120, -20,  20,   5,   5,  20, -20, 120]
-        ]
-        # 6x6の場合は中央部分を使用
-        eval_table = [row[1:7] for row in evaluation_table[1:7]]
-    else:
-        # 8x8ボード用の評価表
-        eval_table = [
-            [120, -20,  20,   5,   5,  20, -20, 120],
-            [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
-            [ 20,  -5,  15,   3,   3,  15,  -5,  20],
-            [  5,  -5,   3,   3,   3,   3,  -5,   5],
-            [  5,  -5,   3,   3,   3,   3,  -5,   5],
-            [ 20,  -5,  15,   3,   3,  15,  -5,  20],
-            [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
-            [120, -20,  20,   5,   5,  20, -20, 120]
-        ]
+    eval_table = EVAL_TABLES["6x6"] if len(board) == 6 else EVAL_TABLES["8x8"]
 
     best_score = float('-inf')
     best_move = None
@@ -146,14 +149,6 @@ def myai_positional(board, color):
     return best_move if best_move else (0, 0)
 
 
-# デフォルトのAI関数（位置評価AI）
-def myai_default(board, color):
-    """デフォルトAI（位置評価重視）"""
-    return myai_positional(board, color)
-
-
-# サイトの仕様に合わせたメイン関数
-# 使用方法: othello.play(myai) または othello.run(myai)
 myai = myai_positional
 
 
@@ -168,31 +163,7 @@ def evaluate_board(board, color):
     Returns:
         評価値（数値が大きいほど有利）
     """
-    # 6x6ボード用の位置評価表
-    if len(board) == 6:
-        position_weights = [
-            [100, -10,  15,   5,   5,  15, -10, 100],
-            [-10, -20,  -2,  -2,  -2,  -2, -20, -10],
-            [ 15,  -2,   5,   2,   2,   5,  -2,  15],
-            [  5,  -2,   2,   1,   1,   2,  -2,   5],
-            [  5,  -2,   2,   1,   1,   2,  -2,   5],
-            [ 15,  -2,   5,   2,   2,   5,  -2,  15],
-            [-10, -20,  -2,  -2,  -2,  -2, -20, -10],
-            [100, -10,  15,   5,   5,  15, -10, 100]
-        ]
-        weights = [row[1:7] for row in position_weights[1:7]]
-    else:
-        # 8x8ボード用の位置評価表
-        weights = [
-            [100, -10,  15,   5,   5,  15, -10, 100],
-            [-10, -20,  -2,  -2,  -2,  -2, -20, -10],
-            [ 15,  -2,   5,   2,   2,   5,  -2,  15],
-            [  5,  -2,   2,   1,   1,   2,  -2,   5],
-            [  5,  -2,   2,   1,   1,   2,  -2,   5],
-            [ 15,  -2,   5,   2,   2,   5,  -2,  15],
-            [-10, -20,  -2,  -2,  -2,  -2, -20, -10],
-            [100, -10,  15,   5,   5,  15, -10, 100]
-        ]
+    weights = get_eval_table(board)
 
     opponent = 3 - color
     score = 0
@@ -415,5 +386,4 @@ def myai_strategic(board, color):
         return myai_minimax_deep(board, color)
 
 
-# 最強AI（デフォルトとして設定）
 myai_best = myai_strategic
